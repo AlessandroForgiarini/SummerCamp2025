@@ -50,6 +50,23 @@ public class GameManager : MonoBehaviour
     
     private void Update()
     {
+        HandleGameManagerState();
+    }
+    
+    private void UpdateState(GameState newState)
+    {
+        if (_currentState == newState)
+        {
+            Debug.LogWarning($"Updating game state with same state: [{newState}]");
+            return;
+        }
+        
+        _currentState = newState;
+        interfaceManager.ShowPanel(newState);
+    }
+
+    private void HandleGameManagerState()
+    {
         switch (_currentState)
         {
             case GameState.Loading:
@@ -73,19 +90,6 @@ public class GameManager : MonoBehaviour
                 throw new ArgumentOutOfRangeException();
         }
     }
-    
-    private void UpdateState(GameState newState)
-    {
-        if (_currentState == newState)
-        {
-            Debug.LogWarning($"Updating game state with same state: [{newState}]");
-            return;
-        }
-        
-        _currentState = newState;
-        interfaceManager.ShowPanel(newState);
-    }
-    
     public void LoadMainMenu()
     {
         // Loading saved HighScore

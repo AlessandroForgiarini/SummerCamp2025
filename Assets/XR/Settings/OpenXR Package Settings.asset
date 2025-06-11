@@ -32,7 +32,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: feeef8d85de8db242bdda70cc7ff5acd, type: 3}
   m_Name: OculusTouchControllerProfile Standalone
   m_EditorClassIdentifier: 
-  m_enabled: 0
+  m_enabled: 1
   nameUi: Oculus Touch Controller Profile
   version: 0.0.1
   featureIdInternal: com.unity.openxr.feature.input.oculustouch
@@ -52,7 +52,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4b862ee14fb479fbfe5fffe655d3ed3, type: 3}
   m_Name: MetaQuestTouchProControllerProfile Standalone
   m_EditorClassIdentifier: 
-  m_enabled: 0
+  m_enabled: 1
   nameUi: Meta Quest Touch Pro Controller Profile
   version: 0.0.1
   featureIdInternal: com.unity.openxr.feature.input.metaquestpro
@@ -72,7 +72,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b7365b139f7aec43b23d26b7a48b5a6, type: 3}
   m_Name: MetaQuestTouchPlusControllerProfile Standalone
   m_EditorClassIdentifier: 
-  m_enabled: 0
+  m_enabled: 1
   nameUi: Meta Quest Touch Plus Controller Profile
   version: 0.0.1
   featureIdInternal: com.unity.openxr.feature.input.metaquestplus
@@ -251,25 +251,25 @@ MonoBehaviour:
   m_Name: Standalone
   m_EditorClassIdentifier: 
   features:
-  - {fileID: -5340353257694096124}
-  - {fileID: -4336519253510470210}
   - {fileID: 5940472546485508069}
-  - {fileID: 5515270002452175948}
   - {fileID: -3402037948610425700}
+  - {fileID: 5515270002452175948}
+  - {fileID: -5152868352034233986}
   - {fileID: 761044818526251237}
+  - {fileID: 7534192845164176730}
+  - {fileID: 5167281969892496491}
+  - {fileID: -3186319930122657408}
+  - {fileID: -5782593651065796395}
+  - {fileID: -6454313647834954741}
+  - {fileID: -6993936032296709995}
   - {fileID: 5393992836044905311}
   - {fileID: 4129146964058722745}
-  - {fileID: 5167281969892496491}
-  - {fileID: -3941628034976258458}
-  - {fileID: -5782593651065796395}
-  - {fileID: 7534192845164176730}
+  - {fileID: -4336519253510470210}
   - {fileID: -8369501641504801357}
-  - {fileID: -6993936032296709995}
-  - {fileID: -6454313647834954741}
   - {fileID: -9017613161367915116}
+  - {fileID: -5340353257694096124}
+  - {fileID: -3941628034976258458}
   - {fileID: 4813673783357169319}
-  - {fileID: -3186319930122657408}
-  - {fileID: -5152868352034233986}
   m_renderMode: 1
   m_autoColorSubmissionMode: 1
   m_colorSubmissionModes:

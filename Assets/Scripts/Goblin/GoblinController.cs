@@ -27,9 +27,9 @@ public class GoblinController : MonoBehaviour
         IDLE,
         GO_TO_TARGET,
         GATHER,
+        PREPARE_TO_RUN_AWAY,
         RUN_AWAY,
-        BANISHED,
-        BACK_IDLE
+        BANISHED
     }
 
     public enum HitDirection
@@ -54,16 +54,11 @@ public class GoblinController : MonoBehaviour
     [SerializeField] float dampTime = 0.2f;
 
     [Header("Renderers")]
-    [SerializeField] private MeshRenderer frontGoblin;
-    [SerializeField] private MeshRenderer leftGoblin;
-    [SerializeField] private MeshRenderer rightGoblin;
-    [SerializeField] private MeshRenderer backGoblin;
     [SerializeField] private Renderer skinRenderer;
 
     private GoblinUI _goblinUI;
     private State _state;
     private float _timer;
-    private bool _goblinBanished;
     private Transform _spawnPointTransform;
     private int _currentHealth;
     private float _gatherTime;
@@ -86,6 +81,11 @@ public class GoblinController : MonoBehaviour
         _anim = GetComponentInChildren<Animator>();
     }
 
+    private void Update()
+    {
+        HandleGoblinState();
+    }
+    
     public void Init(Transform spawnPoint, ElementsListSO.ElementType element)
     {
         // Setting goblin properties
@@ -96,8 +96,6 @@ public class GoblinController : MonoBehaviour
         _spawnPointTransform = spawnPoint;
         activeElementType = element;
 
-        // Resetting goblin
-        _goblinBanished = false;
         _linkedCrystalHandler = null;
         _targetCrystalHandler = null;
         UpdateVisual();
@@ -151,16 +149,7 @@ public class GoblinController : MonoBehaviour
                 destSelected = crystalHandler;
             }
         }
-
-        if (destSelected == null)
-        {
-            Debug.Log("No crystal selected");
-        }
-        else
-        {
-            Debug.Log($"Selected position {destSelected.transform.position} of {destSelected.transform.name}");
-        }
-
+        
         return destSelected != null;
     }
 
@@ -177,7 +166,7 @@ public class GoblinController : MonoBehaviour
     {
         if (newState == _state)
         {
-            Debug.LogWarning($"Same state provided: {newState}");
+            //Debug.LogWarning($"Same state provided: {newState}");
             return;
         }
         _state = newState;
@@ -197,17 +186,15 @@ public class GoblinController : MonoBehaviour
                 break;
             case State.BANISHED:
                 break;
-            case State.BACK_IDLE:
+            case State.PREPARE_TO_RUN_AWAY:
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
     }
 
-    private void Update()
+    private void HandleGoblinState()
     {
-        if (_goblinBanished) return;
-
         switch (_state)
         {
             case State.IDLE:
@@ -250,7 +237,7 @@ public class GoblinController : MonoBehaviour
                     _targetCrystalHandler = null;
                     
                     _anim.SetTrigger(EndStealLabel);
-                    ChangeState(State.BACK_IDLE);
+                    ChangeState(State.PREPARE_TO_RUN_AWAY);
 
                 }
                 else
@@ -259,7 +246,7 @@ public class GoblinController : MonoBehaviour
                     UpdateGatherProgressUI(_timer / _gatherTime);
                 }
                 break;
-            case State.BACK_IDLE:
+            case State.PREPARE_TO_RUN_AWAY:
                 if (_anim.GetCurrentAnimatorStateInfo(0).IsName("Idle"))
                 {
                     PrepareForLocomotion(_spawnPointTransform.transform.position, 1f);
@@ -333,8 +320,6 @@ public class GoblinController : MonoBehaviour
         directionToNextCorner.Scale(noYMask);
         directionToNextCorner.Normalize();
 
-        //Debug.DrawRay(new Vector3(0, 1, 0), agentFwd, Color.green);
-        //Debug.DrawRay(new Vector3(0, 1, 0), directionToNextCorner, Color.red);
         float degsToTurn = Vector3.SignedAngle(agentFwd, directionToNextCorner, Vector3.up);
         float animatorX = Mathf.Sin(degsToTurn * Mathf.Deg2Rad);
 
@@ -383,10 +368,10 @@ public class GoblinController : MonoBehaviour
 
     private void Banish()
     {
-        Debug.Log($"{transform.GetInstanceID()} is being banished.");
+        //Debug.Log($"{transform.GetInstanceID()} is being banished.");
 
         GameManager.Instance.GoblinBanished();
-        _goblinBanished = true;
+        
         if (_linkedCrystalHandler != null)
         {
             _linkedCrystalHandler.ResetParent();
@@ -409,24 +394,6 @@ public class GoblinController : MonoBehaviour
         Destroy(gameObject);
     }
 
-    private static Vector2 HitDirectionToAnimatedValues(HitDirection dir)
-    {
-        switch (dir)
-        {
-            case HitDirection.FRONT:
-                return new Vector2(0, 1);
-            case HitDirection.LEFT:
-                return new Vector2(-1, 0);
-            case HitDirection.RIGHT:
-                return new Vector2(1, 0);
-            case HitDirection.BACK:
-                return new Vector2(0, -1);
-            case HitDirection.NONE:
-            default:
-                return new Vector2(0, 0);
-        }
-    }
-
     private HitDirection CalculateHitDirection(Vector3 hitPoint)
     {
         hitPoint.y = 0;
@@ -447,17 +414,11 @@ public class GoblinController : MonoBehaviour
         if (_state == State.BANISHED) return;
         if (sourceElement != activeElementType) return;
         ApplyDamage(1);
-        Debug.Log("Handling Hit on point: " + point);
         var direction = CalculateHitDirection(point);
-        var animationDirection = HitDirectionToAnimatedValues(direction);
-        Debug.Log(animationDirection);
-        Color c = elementSos.GetColorFromElement(activeElementType);
-
         switch (direction)
         {
             case HitDirection.LEFT:
             case HitDirection.FRONT:
-                frontGoblin.material.color = c;
                 if (_currentHealth <= 0)
                 {
                     _anim.SetFloat(HitXLabel, 0);
@@ -471,7 +432,6 @@ public class GoblinController : MonoBehaviour
             case HitDirection.BACK:
                 if (_currentHealth <= 0)
                 {
-                    backGoblin.material.color = c;
                     _anim.SetFloat(HitXLabel, 0);
                     _anim.SetFloat(HitYLabel, -1);
                     _anim.SetTrigger(HitLabel);
@@ -484,11 +444,6 @@ public class GoblinController : MonoBehaviour
         }
     }
 
-    private void OnValidate()
-    {
-        UpdateVisual();
-    }
-
     private void UpdateVisual()
     {
         Color goblinColor = elementSos.GetColorFromElement(activeElementType);
@@ -496,5 +451,10 @@ public class GoblinController : MonoBehaviour
         float startAlpha = goblinSkinMaterial.color.a;
         newMaterial.color = new Color(goblinColor.r, goblinColor.g, goblinColor.b, startAlpha);
         skinRenderer.material = newMaterial;
+    }
+    
+    private void OnValidate()
+    {
+        UpdateVisual();
     }
 }
